@@ -1,0 +1,1272 @@
+
+import { useEffect, useState } from 'react';
+import {
+  Routes,
+  Route,
+  Navigate,
+  useNavigate
+} from 'react-router-dom';
+
+import {
+  Cloud,
+  ShieldCheck,
+  Folder,
+  Trash2,
+  Upload,
+  Search,
+  LogOut,
+  HardDrive,
+  FileText,
+  Star,
+  Clock
+} from 'lucide-react';
+
+import { useAuth } from '../context/AuthContext';
+import { api } from '../services/api';
+
+// ==========================================
+// INICIO DE SESIÓN
+// ==========================================
+
+function Login() {
+  const { login, passwordChangeRequired } = useAuth();
+  const nav = useNavigate();
+
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const data = await login(identifier, password);
+
+      if (data.requiresPasswordChange === true) {
+        nav('/change-temporary-password', { replace: true });
+        return;
+      }
+
+      nav('/drive', { replace: true });
+
+    } catch (x) {
+      setError(
+        x.response?.data?.message ||
+        x.message ||
+        'No fue posible iniciar sesión. Verifica tus credenciales.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (passwordChangeRequired) {
+    return <Navigate to="/change-temporary-password" replace />;
+  }
+
+  return (
+    <main className="auth">
+      <div className="auth-card">
+
+        <div className="brand-mark">
+          <Cloud />
+        </div>
+
+        <p className="eyebrow">ALMACENAMIENTO PRIVADO</p>
+
+        <h1>
+          PRIVATE DRIVE <span>PRO</span>
+        </h1>
+
+        <p className="muted">
+          Tus archivos. Tu espacio. Tu control.
+        </p>
+
+        <form onSubmit={handleLogin}>
+          <label>Correo o usuario</label>
+
+          <input
+            type="text"
+            value={identifier}
+            onChange={e => setIdentifier(e.target.value)}
+            placeholder="Ingresa tu correo o usuario"
+            autoComplete="username"
+            required
+          />
+
+          <label>Contraseña</label>
+
+          <input
+            type="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            placeholder="Ingresa tu contraseña"
+            autoComplete="current-password"
+            required
+          />
+
+          <button
+            type="submit"
+            className="primary full"
+            disabled={loading}
+          >
+            {loading
+              ? 'Verificando acceso...'
+              : 'Ingresar de forma segura'}
+          </button>
+
+          {error && (
+            <p className="error">{error}</p>
+          )}
+        </form>
+
+        <div className="register-link">
+          <button
+            type="button"
+            className="subtle"
+            onClick={() => nav('/forgot-password')}
+          >
+            ¿Olvidaste tu contraseña?
+          </button>
+        </div>
+
+        <div className="register-link">
+          <p>¿Todavía no tienes una cuenta?</p>
+
+          <button
+            type="button"
+            className="subtle"
+            onClick={() => nav('/register')}
+          >
+            Crear cuenta y solicitar acceso
+          </button>
+        </div>
+
+        <div className="register-link">
+          <p>¿El administrador ya aprobó tu solicitud?</p>
+
+          <button
+            type="button"
+            className="subtle"
+            onClick={() => nav('/verify-email')}
+          >
+            Verificar mi correo electrónico
+          </button>
+        </div>
+
+        <p className="tiny">
+          <ShieldCheck size={14} />
+          Acceso protegido y administrado
+        </p>
+
+      </div>
+    </main>
+  );
+}
+
+// ==========================================
+// RECUPERACIÓN DE CONTRASEÑA
+// ==========================================
+
+function ForgotPassword() {
+  const { forgotPassword } = useAuth();
+  const nav = useNavigate();
+
+  const [identifier, setIdentifier] = useState('');
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+
+    setError('');
+    setMessage('');
+    setLoading(true);
+
+    try {
+      const data = await forgotPassword(identifier);
+
+      setMessage(
+        data.message ||
+        'Si los datos corresponden a una cuenta habilitada, recibirás instrucciones en tu correo.'
+      );
+
+    } catch (x) {
+      setError(
+        x.response?.data?.message ||
+        'No fue posible procesar la solicitud.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <main className="auth">
+      <div className="auth-card">
+
+        <div className="brand-mark">
+          <ShieldCheck />
+        </div>
+
+        <p className="eyebrow">PRIVATE DRIVE PRO</p>
+
+        <h1>Recuperar contraseña</h1>
+
+        <p className="muted">
+          Introduce tu correo electrónico o nombre de usuario.
+          Si tu cuenta cumple los requisitos, recibirás una contraseña temporal.
+        </p>
+
+        <form onSubmit={handleSubmit}>
+          <label>Correo o usuario</label>
+
+          <input
+            type="text"
+            value={identifier}
+            onChange={e => setIdentifier(e.target.value)}
+            placeholder="Correo o nombre de usuario"
+            autoComplete="username"
+            required
+          />
+
+          {error && (
+            <p className="error">{error}</p>
+          )}
+
+          {message && (
+            <p className="notice">{message}</p>
+          )}
+
+          <button
+            type="submit"
+            className="primary full"
+            disabled={loading}
+          >
+            {loading
+              ? 'Procesando...'
+              : 'Solicitar recuperación'}
+          </button>
+        </form>
+
+        <div className="register-link">
+          <button
+            type="button"
+            className="subtle"
+            onClick={() => nav('/login')}
+          >
+            Volver al inicio de sesión
+          </button>
+        </div>
+
+        <p className="tiny">
+          <ShieldCheck size={14} />
+          Recuperación protegida
+        </p>
+
+      </div>
+    </main>
+  );
+}
+
+// ==========================================
+// CAMBIO OBLIGATORIO DE CONTRASEÑA TEMPORAL
+// ==========================================
+
+function ChangeTemporaryPassword() {
+  const { changeTemporaryPassword } = useAuth();
+  const nav = useNavigate();
+
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+
+    setError('');
+
+    if (newPassword.length < 12) {
+      setError(
+        'La nueva contraseña debe tener al menos 12 caracteres.'
+      );
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setError('Las contraseñas no coinciden.');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const data = await changeTemporaryPassword(
+        newPassword,
+        confirmPassword
+      );
+
+      window.alert(
+        data.message ||
+        'Tu contraseña fue actualizada. Inicia sesión nuevamente.'
+      );
+
+      nav('/login', { replace: true });
+
+    } catch (x) {
+      setError(
+        x.response?.data?.message ||
+        x.message ||
+        'No fue posible cambiar la contraseña.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <main className="auth">
+      <div className="auth-card">
+
+        <div className="brand-mark">
+          <ShieldCheck />
+        </div>
+
+        <p className="eyebrow">SEGURIDAD DE LA CUENTA</p>
+
+        <h1>Crea tu nueva contraseña</h1>
+
+        <p className="muted">
+          Por seguridad, debes cambiar la contraseña temporal
+          antes de acceder a tu espacio privado.
+        </p>
+
+        <form onSubmit={handleSubmit}>
+          <label>Nueva contraseña</label>
+
+          <input
+            type="password"
+            value={newPassword}
+            onChange={e => setNewPassword(e.target.value)}
+            placeholder="Mínimo 12 caracteres"
+            autoComplete="new-password"
+            minLength={12}
+            required
+          />
+
+          <label>Confirmar nueva contraseña</label>
+
+          <input
+            type="password"
+            value={confirmPassword}
+            onChange={e => setConfirmPassword(e.target.value)}
+            placeholder="Repite la nueva contraseña"
+            autoComplete="new-password"
+            minLength={12}
+            required
+          />
+
+          {error && (
+            <p className="error">{error}</p>
+          )}
+
+          <button
+            type="submit"
+            className="primary full"
+            disabled={loading}
+          >
+            {loading
+              ? 'Actualizando contraseña...'
+              : 'Guardar nueva contraseña'}
+          </button>
+        </form>
+
+        <p className="tiny">
+          <ShieldCheck size={14} />
+          Tu sesión temporal no permite acceder a tus archivos.
+        </p>
+
+      </div>
+    </main>
+  );
+}
+
+// ==========================================
+// VERIFICACIÓN DE CORREO ELECTRÓNICO
+// ==========================================
+
+function VerifyEmail() {
+  const { verifyEmail } = useAuth();
+  const nav = useNavigate();
+
+  const [email, setEmail] = useState('');
+  const [code, setCode] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  async function handleVerify(e) {
+    e.preventDefault();
+
+    setError('');
+
+    if (!email.trim()) {
+      setError('Introduce tu correo electrónico.');
+      return;
+    }
+
+    if (!/^\d{6}$/.test(code)) {
+      setError('El código debe contener exactamente seis dígitos.');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const data = await verifyEmail(email, code);
+
+      if (data.accessToken && data.user) {
+        nav('/drive', { replace: true });
+      } else {
+        setError(
+          data.message ||
+          'El correo fue verificado, pero debes iniciar sesión para continuar.'
+        );
+      }
+
+    } catch (x) {
+      setError(
+        x.response?.data?.message ||
+        'No fue posible verificar el código. Comprueba los datos e inténtalo nuevamente.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <main className="auth">
+      <div className="auth-card">
+
+        <div className="brand-mark">
+          <ShieldCheck />
+        </div>
+
+        <p className="eyebrow">PRIVATE DRIVE PRO</p>
+
+        <h1>Verifica tu correo</h1>
+
+        <p className="muted">
+          Confirma tu dirección de correo electrónico
+          para continuar con la activación de tu cuenta.
+        </p>
+
+        <form onSubmit={handleVerify}>
+
+          <label>Correo electrónico registrado</label>
+
+          <input
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="ejemplo@gmail.com"
+            autoComplete="email"
+            required
+          />
+
+          <label>Código de verificación</label>
+
+          <input
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]{6}"
+            maxLength={6}
+            value={code}
+            onChange={e =>
+              setCode(
+                e.target.value.replace(/\D/g, '').slice(0, 6)
+              )
+            }
+            placeholder="000000"
+            autoComplete="one-time-code"
+            required
+            style={{
+              textAlign: 'center',
+              letterSpacing: '10px',
+              fontSize: '24px',
+              fontWeight: 'bold'
+            }}
+          />
+
+          <p className="muted">
+            Introduce los seis dígitos que recibiste en tu Gmail.
+          </p>
+
+          {error && (
+            <p className="error">{error}</p>
+          )}
+
+          <button
+            type="submit"
+            className="primary full"
+            disabled={loading || code.length !== 6 || !email.trim()}
+          >
+            {loading
+              ? 'Verificando correo...'
+              : 'Verificar correo electrónico'}
+          </button>
+
+        </form>
+
+        <div className="register-link">
+          <p>¿No recibiste el código?</p>
+
+          <p className="muted">
+            Solicita al administrador que reenvíe tu código
+            de verificación.
+          </p>
+        </div>
+
+        <div className="register-link">
+          <button
+            type="button"
+            className="subtle"
+            onClick={() => nav('/login')}
+          >
+            Volver al inicio de sesión
+          </button>
+        </div>
+
+        <p className="tiny">
+          <ShieldCheck size={14} />
+          Verificación protegida
+        </p>
+
+      </div>
+    </main>
+  );
+}
+
+// ==========================================
+// SOLICITUD DE REGISTRO
+// ==========================================
+
+function Register() {
+  const nav = useNavigate();
+
+  const [form, setForm] = useState({
+    firstName: '',
+    lastName: '',
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
+
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [accepted, setAccepted] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  function updateField(key, value) {
+    setForm(previous => ({
+      ...previous,
+      [key]: value
+    }));
+  }
+
+  async function handleRegister(e) {
+    e.preventDefault();
+
+    setMessage('');
+    setError('');
+
+    if (form.password.length < 12) {
+      setError('La contraseña debe tener al menos 12 caracteres.');
+      return;
+    }
+
+    if (form.password !== form.confirmPassword) {
+      setError('Las contraseñas no coinciden.');
+      return;
+    }
+
+    if (!accepted) {
+      setError('Debes aceptar las condiciones de privacidad.');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { data } = await api.post('/auth/register', {
+        firstName: form.firstName.trim(),
+        lastName: form.lastName.trim(),
+        username: form.username.trim(),
+        email: form.email.trim(),
+        password: form.password
+      });
+
+      setMessage(
+        data.message ||
+        'Tu solicitud fue enviada correctamente. Está pendiente de revisión por el administrador.'
+      );
+
+      setSubmitted(true);
+
+    } catch (x) {
+      setError(
+        x.response?.data?.message ||
+        'No fue posible enviar la solicitud. Intenta nuevamente.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <main className="auth">
+      <div className="auth-card register-card">
+
+        <div className="brand-mark">
+          <Cloud />
+        </div>
+
+        <p className="eyebrow">PRIVATE DRIVE PRO</p>
+
+        <h1>Solicitar acceso</h1>
+
+        <p className="muted">
+          Crea tu solicitud para obtener un espacio privado
+          de almacenamiento.
+        </p>
+
+        {submitted ? (
+          <div className="registration-success">
+
+            <ShieldCheck size={42} />
+
+            <h3>Solicitud enviada</h3>
+
+            <p>{message}</p>
+
+            <p className="muted">
+              El administrador deberá revisar y aprobar
+              tu solicitud antes de habilitar tu cuenta.
+            </p>
+
+            <button
+              type="button"
+              className="primary full"
+              onClick={() => nav('/login')}
+            >
+              Volver al inicio de sesión
+            </button>
+
+          </div>
+        ) : (
+          <form onSubmit={handleRegister}>
+
+            <label>Nombres</label>
+
+            <input
+              type="text"
+              value={form.firstName}
+              onChange={e => updateField('firstName', e.target.value)}
+              placeholder="Tus nombres"
+              autoComplete="given-name"
+              required
+            />
+
+            <label>Apellidos</label>
+
+            <input
+              type="text"
+              value={form.lastName}
+              onChange={e => updateField('lastName', e.target.value)}
+              placeholder="Tus apellidos"
+              autoComplete="family-name"
+              required
+            />
+
+            <label>Nombre de usuario</label>
+
+            <input
+              type="text"
+              value={form.username}
+              onChange={e => updateField('username', e.target.value)}
+              placeholder="Elige un nombre de usuario"
+              autoComplete="username"
+              minLength={3}
+              required
+            />
+
+            <label>Correo electrónico</label>
+
+            <input
+              type="email"
+              value={form.email}
+              onChange={e => updateField('email', e.target.value)}
+              placeholder="ejemplo@correo.com"
+              autoComplete="email"
+              required
+            />
+
+            <label>Contraseña</label>
+
+            <input
+              type="password"
+              value={form.password}
+              onChange={e => updateField('password', e.target.value)}
+              placeholder="Mínimo 12 caracteres"
+              autoComplete="new-password"
+              minLength={12}
+              required
+            />
+
+            <label>Confirmar contraseña</label>
+
+            <input
+              type="password"
+              value={form.confirmPassword}
+              onChange={e => updateField('confirmPassword', e.target.value)}
+              placeholder="Repite tu contraseña"
+              autoComplete="new-password"
+              minLength={12}
+              required
+            />
+
+            <label className="privacy-option">
+              <input
+                type="checkbox"
+                checked={accepted}
+                onChange={e => setAccepted(e.target.checked)}
+                required
+              />
+
+              <span>
+                Acepto las condiciones de privacidad y
+                tratamiento de datos.
+              </span>
+            </label>
+
+            {error && (
+              <p className="error">{error}</p>
+            )}
+
+            <button
+              type="submit"
+              className="primary full"
+              disabled={loading}
+            >
+              {loading
+                ? 'Enviando solicitud...'
+                : 'Enviar solicitud de acceso'}
+            </button>
+
+          </form>
+        )}
+
+        {!submitted && (
+          <div className="register-link">
+            <p>¿Ya tienes una cuenta?</p>
+
+            <button
+              type="button"
+              className="subtle"
+              onClick={() => nav('/login')}
+            >
+              Volver a iniciar sesión
+            </button>
+          </div>
+        )}
+
+        <p className="tiny">
+          <ShieldCheck size={14} />
+          Las solicitudes requieren aprobación administrativa.
+        </p>
+
+      </div>
+    </main>
+  );
+}
+
+// ==========================================
+// UNIDAD DE ALMACENAMIENTO
+// ==========================================
+
+function Drive() {
+  const { user, logout } = useAuth();
+
+  const [files, setFiles] = useState([]);
+  const [trash, setTrash] = useState([]);
+  const [query, setQuery] = useState('');
+  const [tab, setTab] = useState('all');
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState('');
+
+  async function load() {
+    const { data } = await api.get(
+      tab === 'trash' ? '/files/trash' : '/files'
+    );
+
+    if (tab === 'trash') {
+      setTrash(data);
+    } else {
+      setFiles(data);
+    }
+  }
+
+  useEffect(() => {
+    load().catch(e => {
+      setNotice(
+        e.response?.data?.message ||
+        'Error cargando archivos.'
+      );
+    });
+  }, [tab]);
+
+  async function upload(e) {
+    const selectedFiles = [...e.target.files];
+
+    if (!selectedFiles.length) return;
+
+    const fd = new FormData();
+
+    selectedFiles.forEach(file => {
+      fd.append('files', file);
+    });
+
+    setBusy(true);
+    setNotice('');
+
+    try {
+      await api.post('/files/upload', fd, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      setNotice('Archivos subidos correctamente.');
+      await load();
+
+    } catch (x) {
+      setNotice(
+        x.response?.data?.message ||
+        'Error al subir archivos.'
+      );
+    } finally {
+      setBusy(false);
+      e.target.value = '';
+    }
+  }
+
+  async function act(id, restore = false) {
+    try {
+      await api({
+        method: restore ? 'patch' : 'delete',
+        url: restore
+          ? `/files/${id}/restore`
+          : `/files/${id}`
+      });
+
+      setNotice(
+        restore
+          ? 'Archivo restaurado correctamente.'
+          : 'Archivo enviado a la papelera.'
+      );
+
+      await load();
+
+    } catch (x) {
+      setNotice(
+        x.response?.data?.message ||
+        'No fue posible completar la operación.'
+      );
+    }
+  }
+
+  async function downloadFile(file) {
+    try {
+      const response = await api.get(
+        `/files/${file.id}/download`,
+        { responseType: 'blob' }
+      );
+
+      const url = URL.createObjectURL(response.data);
+      const a = document.createElement('a');
+
+      a.href = url;
+      a.download = file.original_name;
+
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      URL.revokeObjectURL(url);
+
+    } catch {
+      setNotice('No fue posible descargar el archivo.');
+    }
+  }
+
+  const shown = files.filter(file =>
+    file.original_name
+      .toLowerCase()
+      .includes(query.toLowerCase())
+  );
+
+  return (
+    <div className="shell">
+
+      <aside className="sidebar">
+
+        <div className="logo">
+          <div className="brand-mark small">
+            <Cloud />
+          </div>
+
+          <b>
+            PRIVATE DRIVE <i>PRO</i>
+          </b>
+        </div>
+
+        <div className="side-label">
+          ESPACIO PERSONAL
+        </div>
+
+        <button
+          className={tab === 'all' ? 'nav active' : 'nav'}
+          onClick={() => setTab('all')}
+        >
+          <HardDrive />
+          Todos mis archivos
+        </button>
+
+        <button
+          className="nav"
+          onClick={() => setNotice('El módulo de favoritos está pendiente de implementación.')}
+        >
+          <Star />
+          Favoritos
+        </button>
+
+        <button
+          className="nav"
+          onClick={() => setNotice('El módulo de archivos recientes está pendiente de implementación.')}
+        >
+          <Clock />
+          Recientes
+        </button>
+
+        <button
+          className={tab === 'trash' ? 'nav active' : 'nav'}
+          onClick={() => setTab('trash')}
+        >
+          <Trash2 />
+          Papelera
+        </button>
+
+        <div className="side-bottom">
+
+          <div className="secure">
+            <ShieldCheck />
+
+            <span>
+              Espacio privado
+              <br />
+              <small>Conexión protegida</small>
+            </span>
+          </div>
+
+          <button
+            className="nav"
+            onClick={logout}
+          >
+            <LogOut />
+            Cerrar sesión
+          </button>
+
+        </div>
+      </aside>
+
+      <main className="content">
+
+        <header className="top">
+
+          <div>
+            <p className="eyebrow">MI ESPACIO</p>
+
+            <h2>
+              Hola, {user?.username || 'usuario'} 👋
+            </h2>
+          </div>
+
+          <div className="avatar">
+            {(user?.username || 'U')[0].toUpperCase()}
+          </div>
+
+        </header>
+
+        <section className="welcome">
+
+          <div>
+            <span className="pill">
+              <ShieldCheck size={14} />
+              PRIVADO Y SEGURO
+            </span>
+
+            <h2>
+              Todo lo importante,
+              <br />
+              en un solo lugar.
+            </h2>
+
+            <p>
+              Organiza y protege tus documentos digitales.
+            </p>
+          </div>
+
+          <div className="welcome-icon">
+            <Cloud size={88} />
+          </div>
+
+        </section>
+
+        <div className="section-head">
+
+          <div>
+            <h3>
+              {tab === 'trash' ? 'Papelera' : 'Mis archivos'}
+            </h3>
+
+            <p className="muted">
+              Gestiona tus documentos personales
+            </p>
+          </div>
+
+          {tab !== 'trash' && (
+            <label className="upload primary">
+              <Upload size={17} />
+
+              {busy ? 'Subiendo...' : 'Subir archivos'}
+
+              <input
+                type="file"
+                multiple
+                hidden
+                onChange={upload}
+                disabled={busy}
+              />
+            </label>
+          )}
+
+        </div>
+
+        <div className="toolbar">
+
+          <div className="search">
+            <Search />
+
+            <input
+              placeholder="Buscar en mis archivos..."
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+            />
+          </div>
+
+          <span className="muted">
+            {tab === 'trash' ? trash.length : shown.length}
+            {' '}elementos
+          </span>
+
+        </div>
+
+        {notice && (
+          <p className="notice">{notice}</p>
+        )}
+
+        <div className="file-grid">
+
+          {tab === 'trash'
+            ? trash.map(file => (
+                <article className="file-card" key={file.id}>
+
+                  <FileText />
+
+                  <b>{file.original_name}</b>
+
+                  <small>
+                    Eliminado{' '}
+                    {new Date(file.deleted_at).toLocaleDateString()}
+                  </small>
+
+                  <button
+                    className="subtle"
+                    onClick={() => act(file.id, true)}
+                  >
+                    Restaurar
+                  </button>
+
+                </article>
+              ))
+            : shown.map(file => (
+                <article className="file-card" key={file.id}>
+
+                  <div className="file-icon">
+                    <FileText />
+                  </div>
+
+                  <b title={file.original_name}>
+                    {file.original_name}
+                  </b>
+
+                  <small>
+                    {(file.size_bytes / 1024 / 1024).toFixed(2)}
+                    {' '}MB ·{' '}
+                    {new Date(file.created_at).toLocaleDateString()}
+                  </small>
+
+                  <div className="file-actions">
+
+                    <button onClick={() => downloadFile(file)}>
+                      Descargar
+                    </button>
+
+                    <button onClick={() => act(file.id)}>
+                      Papelera
+                    </button>
+
+                  </div>
+
+                </article>
+              ))
+          }
+
+        </div>
+
+        {tab !== 'trash' && !files.length && (
+          <div className="empty">
+            <Folder size={42} />
+
+            <h3>Aún no tienes archivos</h3>
+
+            <p>
+              Sube tu primer documento para comenzar.
+            </p>
+          </div>
+        )}
+
+        {tab === 'all' && files.length > 0 && shown.length === 0 && (
+          <div className="empty">
+            <Search size={42} />
+
+            <h3>No encontramos archivos</h3>
+
+            <p>Prueba con otro nombre de búsqueda.</p>
+          </div>
+        )}
+
+      </main>
+    </div>
+  );
+}
+
+// ==========================================
+// RUTAS PRINCIPALES Y PROTECCIÓN DE ACCESO
+// ==========================================
+
+export default function App() {
+  const { user, passwordChangeRequired } = useAuth();
+
+  return (
+    <Routes>
+
+      <Route
+        path="/login"
+        element={
+          passwordChangeRequired
+            ? <Navigate to="/change-temporary-password" replace />
+            : user
+              ? <Navigate to="/drive" replace />
+              : <Login />
+        }
+      />
+
+      <Route
+        path="/forgot-password"
+        element={
+          passwordChangeRequired
+            ? <Navigate to="/change-temporary-password" replace />
+            : user
+              ? <Navigate to="/drive" replace />
+              : <ForgotPassword />
+        }
+      />
+
+      <Route
+        path="/change-temporary-password"
+        element={
+          passwordChangeRequired
+            ? <ChangeTemporaryPassword />
+            : <Navigate to="/login" replace />
+        }
+      />
+
+      <Route
+        path="/register"
+        element={
+          passwordChangeRequired
+            ? <Navigate to="/change-temporary-password" replace />
+            : user
+              ? <Navigate to="/drive" replace />
+              : <Register />
+        }
+      />
+
+      <Route
+        path="/verify-email"
+        element={
+          passwordChangeRequired
+            ? <Navigate to="/change-temporary-password" replace />
+            : user
+              ? <Navigate to="/drive" replace />
+              : <VerifyEmail />
+        }
+      />
+
+      <Route
+        path="/drive"
+        element={
+          user && !passwordChangeRequired
+            ? <Drive />
+            : passwordChangeRequired
+              ? <Navigate to="/change-temporary-password" replace />
+              : <Navigate to="/login" replace />
+        }
+      />
+
+      <Route
+        path="*"
+        element={
+          <Navigate
+            to={
+              passwordChangeRequired
+                ? '/change-temporary-password'
+                : user
+                  ? '/drive'
+                  : '/login'
+            }
+            replace
+          />
+        }
+      />
+
+    </Routes>
+  );
+}

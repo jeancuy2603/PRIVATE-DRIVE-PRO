@@ -1,0 +1,24 @@
+PRIVATE DRIVE PRO - V5: ESPACIO Y ACCESIBILIDAD EN AUTENTICACION
+
+Cambios:
+- Inicio de sesión con etiquetas asociadas explícitamente a sus campos.
+- Activación de cuenta con etiquetas accesibles, código de seis dígitos y ayuda contextual.
+- Registro distribuido en dos columnas en escritorio y una columna en móvil.
+- Panel de marca a la izquierda y formulario a la derecha en pantallas amplias.
+- Alturas y espacios compactos para reducir desplazamiento vertical.
+- Foco visible para teclado, contraste mejorado y áreas de interacción más claras.
+- Respeto a pantallas pequeñas y a la preferencia de movimiento reducido ya definida en estilos.
+
+Archivos modificados:
+- frontend-user/src/pages/App.jsx
+- frontend-user/src/styles.css
+
+Instalación:
+1. Realiza copia de seguridad del proyecto actual.
+2. Detén Vite.
+3. Reemplaza el contenido del ZIP sobre la copia del proyecto.
+4. Conserva backend/.env, backend/storage y la base de datos.
+5. En frontend-user ejecuta npm ci y luego npm run dev.
+
+Nota de validación:
+No se pudo completar npm ci en el entorno de preparación por límite de tiempo; por ello no se declara compilación Vite verificada. Se recomienda ejecutar npm run build en el equipo Windows antes de reemplazar producción.

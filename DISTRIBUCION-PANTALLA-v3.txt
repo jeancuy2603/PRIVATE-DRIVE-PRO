@@ -1,0 +1,28 @@
+PRIVATE DRIVE PRO - AJUSTE DE DISTRIBUCION DE PANTALLA
+
+Objetivo:
+Reducir el desplazamiento vertical y agrupar las acciones frecuentes para que el usuario encuentre lo principal sin recorrer pantallas extensas.
+
+Frontend de usuario:
+- Inicio de sesión reorganizado en dos columnas en pantallas de escritorio: identidad visual a la izquierda y formulario a la derecha.
+- En pantallas pequeñas conserva una sola columna.
+- Menor altura de cabecera y espacios verticales del explorador.
+- Barra de ruta y acciones permanece visible durante el desplazamiento en escritorio.
+- Tarjetas de archivos y carpetas con mayor densidad en escritorio.
+- Menú lateral más compacto.
+
+Frontend administrativo:
+- Menú lateral y cabecera compactados.
+- Seis indicadores del dashboard en una fila cuando el ancho lo permite.
+- Actividad y tablas con desplazamiento interno y encabezados fijos para evitar alargar toda la página.
+- En tabletas y móviles se mantiene una distribución adaptable.
+
+Instalación:
+1. Detén los servidores de desarrollo.
+2. Haz copia de seguridad del proyecto actual.
+3. Extrae este ZIP y copia/sobrescribe la carpeta PRIVATE-DRIVE-PRO sobre tu copia local.
+4. Conserva los archivos .env, los datos de MySQL y backend/storage.
+5. Reinicia frontend-user y frontend-admin.
+
+Nota de validación:
+Este paquete contiene ajustes CSS de distribución. Debe comprobarse visualmente en las resoluciones usadas por el cliente y ejecutarse los builds de ambos frontends en el equipo de destino antes de publicar.

@@ -1,0 +1,36 @@
+PRIVATE DRIVE PRO — PAQUETE DE ACTUALIZACIÓN
+
+IMPORTANTE ANTES DE INSTALAR
+1. Detén backend y ambos frontends.
+2. Haz una copia completa del proyecto actual.
+3. Exporta una copia de seguridad de MySQL.
+4. Conserva tu backend/.env y backend/storage actuales. Este ZIP no los contiene.
+5. Extrae el paquete en una copia de trabajo, manteniendo la estructura de carpetas.
+
+CAMBIOS INCLUIDOS
+- Ajustes visuales y de accesibilidad para frontend-user y frontend-admin.
+- Indicador real de disponibilidad de API en el panel administrativo mediante /api/health.
+- Manual de usuario, manual de administrador, manual técnico y registro de auditoría.
+- Guía actualizada de módulos y aceptación.
+
+ARQUITECTURA CONSERVADA
+- frontend-user: React + Vite.
+- frontend-admin: Angular 18.
+- backend: Node.js + Express.
+- database: MySQL.
+
+INSTALACIÓN
+1. Revisa documentation/MANUAL_TECNICO.md.
+2. No sobrescribas .env ni storage.
+3. Compara las migraciones SQL y aplica solo las pendientes.
+4. En cada proyecto ejecuta npm install si cambió el package.json.
+5. Ejecuta npm run build en frontend-user y frontend-admin.
+6. Ejecuta npm test en backend.
+7. Prueba todos los flujos contra una base MySQL de pruebas antes de sustituir la instalación activa.
+
+SEGURIDAD
+El ZIP original compartido contenía backend/.env y archivos privados en backend/storage/private. Rota las contraseñas de MySQL, secretos JWT, credenciales SMTP y cualquier otro secreto que estuviera en ese archivo. No reutilices esos valores.
+Este paquete excluye .env, node_modules, cachés, respaldos .bak y archivos privados almacenados. Crea tu .env local a partir de backend/.env.example.
+
+ESTADO
+La revisión estática del backend y la sintaxis de fuentes TypeScript/JSX se validaron en este entorno. No se ejecutó un build Vite/Angular completo ni una prueba de integración con tu MySQL/Windows. Consulta documentation/AUDITORIA_Y_ESTADO.md. No se declara 100 % hasta superar las pruebas integrales.

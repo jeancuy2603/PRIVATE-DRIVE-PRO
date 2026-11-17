@@ -1,0 +1,37 @@
+PRIVATE DRIVE PRO V8 - DISENO PREMIUM Y EXPERIENCIA FULL
+
+Base: V7 (incluye correccion de eliminacion de carpetas y acceso a salas de versiones previas).
+
+Mejoras visuales:
+- Interfaz de usuario: jerarquia visual, panel lateral, cabecera sticky, buscador,
+  bienvenida, barra de herramientas, tarjetas de archivos/carpetas, estados vacios,
+  avisos, modales y previsualizador.
+- Panel administrador: identidad visual unificada, sidebar y topbar sticky,
+  tarjetas estadisticas, paneles, tablas, botones, formularios, salas y configuraciones.
+- Responsive para escritorio, tablet y móvil.
+- Estados de foco visibles para teclado y soporte de movimiento reducido.
+- Espaciado, contraste, bordes, sombras y estados hover refinados.
+
+Funcionalidades existentes preservadas:
+- Autenticación, registro y activación.
+- Gestión de archivos y carpetas, búsqueda, favoritos, recientes y papelera.
+- Previsualización de archivos y hojas de cálculo.
+- Panel administrativo, usuarios, solicitudes, salas, configuración y auditoría
+  según los módulos que ya existían en esta base.
+
+Alcance:
+Esta versión mejora principalmente la capa visual (CSS); no inventa nuevas rutas
+ni operaciones de backend. Las nuevas funciones de servidor requieren diseño,
+permisos, endpoints y pruebas aparte.
+
+Instalación:
+1. Realizar una copia de seguridad del proyecto actual.
+2. Extraer el ZIP y reemplazar los archivos del proyecto.
+3. Mantener backend/.env, backend/storage y la base de datos.
+4. En frontend-user: npm install y npm run build.
+5. En frontend-admin: npm install y npm run build.
+6. Reiniciar los servidores.
+
+Validación:
+ZIP íntegro. Los cambios de esta versión son CSS y documentación; no se modificó
+el esquema MySQL ni las rutas de API. Las compilaciones deben verificarse localmente.

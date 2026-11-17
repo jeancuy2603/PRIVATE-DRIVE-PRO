@@ -1,0 +1,25 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies and build artifacts
+node_modules/
+dist/
+build/
+.angular/
+.vite/
+coverage/
+
+# Private uploaded content and temporary data
+backend/storage/*
+!backend/storage/.gitkeep
+!backend/storage/temp/
+backend/storage/temp/*
+!backend/storage/temp/.gitkeep
+
+# Local logs and OS files
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db

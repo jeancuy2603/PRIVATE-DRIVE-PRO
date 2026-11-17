@@ -1,0 +1,20 @@
+PRIVATE DRIVE PRO - V6 ACCESO A SALA
+
+Corrección:
+- Normaliza el estado de acceso de /rooms/me.
+- Lee accessGranted del nivel superior de la respuesta API.
+- Como respaldo, interpreta room.access_granted_at.
+- Evita mostrar la pantalla de activación cuando la sala ya está habilitada.
+- Si el servidor responde 409 indicando que la sala ya estaba habilitada,
+  vuelve a consultar el estado y permite continuar cuando el acceso está concedido.
+- El campo de código acepta exactamente 8 caracteres hexadecimales en mayúsculas.
+
+Instalación:
+- Reemplazar los archivos del proyecto desde esta versión.
+- Conservar backend/.env, backend/storage y la base de datos.
+- Reiniciar frontend-user y backend.
+- No requiere migración de base de datos.
+
+Validación:
+- Se verificó que los cambios se aplicaron al archivo frontend-user/src/pages/App.jsx.
+- La compilación completa debe ejecutarse en el equipo de instalación con npm run build.

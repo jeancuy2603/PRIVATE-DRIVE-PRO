@@ -1,0 +1,41 @@
+PRIVATE DRIVE PRO - ACTUALIZACION V4
+
+CAMBIOS
+1. Registro de usuarios:
+   - Los errores de duplicidad ahora distinguen correo ya registrado de nombre de usuario ocupado.
+   - Si el registro existente sigue pendiente de revisión/verificación, se explica que no debe duplicarse la solicitud.
+   - No se permite crear cuentas duplicadas ni se sobrescribe una cuenta existente.
+
+2. Administración de salas:
+   - Editar y renombrar sala.
+   - Actualizar descripción y capacidad.
+   - Regenerar código: revoca los códigos anteriores y crea uno nuevo; intenta enviarlo al correo del propietario.
+   - Eliminar sala solo si no contiene archivos ni carpetas. Si tiene contenido, el backend bloquea el borrado para evitar pérdida de datos.
+
+3. Configuración:
+   - Crear y actualizar parámetros por clave.
+   - Los valores se validan como JSON.
+   - Editar y eliminar parámetros existentes.
+   - Las operaciones requieren autenticación y rol administrativo, y quedan auditadas.
+
+RUTAS NUEVAS
+PATCH  /api/admin/rooms/:id
+DELETE /api/admin/rooms/:id
+POST   /api/admin/rooms/:id/regenerate-code
+PUT    /api/admin/settings
+DELETE /api/admin/settings/:key
+
+ACTUALIZACIÓN
+- Reemplazar los archivos del proyecto usando una copia de seguridad.
+- Conservar backend/.env y backend/storage.
+- No se requiere modificar el esquema SQL para estas funciones.
+- Reiniciar backend y frontend-admin después de copiar.
+
+NOTA DE VALIDACIÓN
+Se ejecutó node --check sobre los controladores y rutas modificados. La compilación Angular no se pudo completar en este entorno porque la instalación de dependencias excedió el tiempo disponible. Se debe ejecutar en Windows:
+  cd frontend-admin
+  npm ci
+  npm run build
+Y en backend:
+  cd backend
+  npm test

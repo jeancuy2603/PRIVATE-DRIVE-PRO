@@ -1,0 +1,25 @@
+PRIVATE DRIVE PRO - V7: CORRECCION DE ELIMINACION DE CARPETAS
+
+Causa:
+El controlador solo contaba archivos con deleted_at IS NULL, pero la
+restricción FK files_ibfk_3 también considera archivos enviados a papelera.
+El DELETE de folders fallaba con ER_ROW_IS_REFERENCED_2.
+
+Cambio:
+- El conteo ahora incluye todos los registros files asociados a la carpeta.
+- La API responde HTTP 409 con un mensaje claro cuando existen archivos
+  (incluidos los de papelera) o subcarpetas.
+- Se captura ER_ROW_IS_REFERENCED_2 como protección ante condiciones de carrera.
+- No se borran archivos automáticamente ni se desactivan claves foráneas.
+
+Instalación:
+1. Haz copia de seguridad del proyecto.
+2. Reemplaza el archivo:
+   backend/src/controllers/folderController.js
+   por el incluido en este ZIP.
+3. Conserva backend/.env, backend/storage y la base de datos.
+4. Reinicia backend con npm run dev.
+
+No requiere migración SQL.
+Validación realizada: sintaxis JavaScript comprobada con node --check.
+Prueba funcional pendiente en la base de datos local del usuario.
